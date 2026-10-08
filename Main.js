@@ -42,6 +42,7 @@ function resetTimer(){
     timePaused = null
     timePausedElapsed = 0
     timerDisplay.textContent = Math.floor(workDuration / 60000) + ":" + String(Math.floor((workDuration % 60000) / 1000)).padStart(2, '0')
+    startStopButton.textContent = "Start"
 
 }
 
@@ -58,12 +59,15 @@ function timeCheck(){
 function startStopButtonHandler(){
     if (startTime == null){
         startTimer()
+        startStopButton.textContent = "Pause"
     }
     else if (timePaused == null){
         pauseTimer()
+        startStopButton.textContent = "Resume"
     }
     else if(timer == null){
         resumeTimer()
+        startStopButton.textContent = "Pause"
     }
 }
 
