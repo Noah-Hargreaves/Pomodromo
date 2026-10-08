@@ -41,7 +41,7 @@ function resetTimer(){
     startTime = null
     timePaused = null
     timePausedElapsed = 0
-    timerDisplay.textContent = Math.floor(workDuration / 60000) + ":" + String(Math.floor((workDuration % 60000) / 1000)).padStart(2, '0')
+    timerDisplay.textContent = formatTime(workDuration)
     startStopButton.textContent = "Start"
 
 }
@@ -77,7 +77,7 @@ function TimerAnimation() {
         stopTimerAnimation()
         return
     }
-    timerDisplay.textContent = Math.floor(timeLeft / 60000) + ":" + String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0')
+    timerDisplay.textContent = formatTime(timeLeft)
     animationFrameId = requestAnimationFrame(TimerAnimation)
 }
 
@@ -86,7 +86,11 @@ function stopTimerAnimation() {
     animationFrameId = null
 }
 
+function formatTime(time){
+    return Math.floor(time / 60000) + ":" + String(Math.floor((time % 60000) / 1000)).padStart(2, '0')
+}
+
 startStopButton.addEventListener("click", startStopButtonHandler)
 resetButton.addEventListener("click", resetTimer)
 
-timerDisplay.textContent = Math.floor(workDuration / 60000) + ":" + String(Math.floor((workDuration % 60000) / 1000)).padStart(2, '0')
+timerDisplay.textContent = formatTime(workDuration)
