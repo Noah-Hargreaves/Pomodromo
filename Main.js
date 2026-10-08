@@ -1,105 +1,65 @@
-import { startTimerAnimation , stopTimerAnimation} from "./Animation.js"
-
-const workEnd = 10 * 1000
-const shortBreakEnd = 5 * 60 * 1000
+const workDuration = 25 * 10 * 1000
 const startStopButton = document.getElementById("startStopButton")
 const resetButton = document.getElementById("resetButton")
 
-let pauseState = true
 let startTime = null
-let endTime = null
 let timer = null
-let timeLeftPause = null
+let timePaused = null
+let timePausedElapsed = 0
 
-//consider making a timer formatter function
-
-function startTimer(timeLength) {
-    if (timeLength <= 0) {
-        console.log("Invalid time length, cannot start timer")
-        return
-    }
-    console.log("Timer started")
-    clearTimeout(timer)
+function startTimer(){
+    console.log("start timer")
     startTime = Date.now()
-    endTime = startTime + timeLength
-    pauseState = false
-    timeLeftPause = null
-    timer = setTimeout(() => resetTimer(), timeLength)
-    startTimerAnimation(endTime)
-    logTimerState()
+    timer = setTimeout(timeCheck, 100)
 }
 
-//hardcoded to rest to workEnd
-function resetTimer() {
-    console.log("Resetting timer")
+function pauseTimer(){
+    console.log("pause Timer")
     clearTimeout(timer)
-    stopTimerAnimation()
-    document.getElementById("timerDisplay").textContent = Math.floor(workEnd / 60000) + ":" + String(Math.floor((workEnd % 60000) / 1000)).padStart(2, '0')
-    pauseState = true
-    startTime = null
-    endTime = null
     timer = null
-    timeLeftPause = null
-    logTimerState()
-}
-
-function pauseTimer() {
-    timeLeftPause = endTime - Date.now()
-    if (timeLeftPause <= 0) {
-        console.log("Timer has already ended, cannot pause")
-        return
-    }
-    console.log("Timer paused")
-    clearTimeout(timer)
-    pauseState = true
-    timer = null
-    stopTimerAnimation()
-    logTimerState()
+    timePaused = Date.now()
 }
 
 function resumeTimer(){
-    if (timeLeftPause <= 0) {
-        console.log("Timer has already ended, cannot resume")
+    console.log("resume Timer")
+    timePausedElapsed += Date.now() - timePaused
+    timePaused = null
+    timer = setTimeout(timeCheck, 100)
+}
+
+function resetTimer(){
+    console.log("reset Timer")
+    clearTimeout(timer)
+    timer = null
+    startTime = null
+    timePaused = null
+    timePausedElapsed = 0
+}
+
+function timeCheck(){
+    const timeElapsed = Date.now() - startTime - timePausedElapsed
+    if (timeElapsed >= workDuration){
+        clearTimeout(timer)
+        resetTimer()
         return
     }
-    console.log("Timer resumed")
-    endTime = Date.now() + timeLeftPause
-    timer = setTimeout(() => resetTimer(), timeLeftPause)
-    pauseState = false
-    timeLeftPause = null
-    startTimerAnimation(endTime)
-    logTimerState()
+    console.log(timeElapsed.toString())
+    timer = setTimeout(timeCheck, 100)
 }
 
-//need to make start/stop button change display
-function startStopButtonHandler() {
-    console.log("Start/Stop button clicked")
-    if (startTime === null) {
-        console.log("Starting timer")
-        startTimer(workEnd)
+function startStopButtonHandler(){
+    if (startTime == null){
+        startTimer()
     }
-    else if (pauseState){
-        console.log("Resuming timer")
-        resumeTimer()
-    } 
-    else{
-        console.log("Pausing timer")
+    else if (timePaused == null){
         pauseTimer()
     }
-}
-
-function logTimerState(){
-    console.log("Timer State:")
-    console.log("Pause State: " + pauseState)
-    console.log("Start Time: " + startTime)
-    console.log("End Time: " + endTime)
-    console.log("Time Left on Pause: " + timeLeftPause)
-    console.log("Timer: " + timer)
+    else if(timer == null){
+        resumeTimer()
+    }
 }
 
 startStopButton.addEventListener("click", startStopButtonHandler)
 resetButton.addEventListener("click", resetTimer)
-document.getElementById("timerDisplay").textContent = Math.floor(workEnd / 60000) + ":" + String(Math.floor((workEnd % 60000) / 1000)).padStart(2, '0')
 
-console.log("Pomodromo Timer initialized")
-logTimerState()
+
