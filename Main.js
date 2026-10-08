@@ -1,8 +1,11 @@
 const workDuration = 10 * 1000
+const breakDuration = 5 * 1000
 const startStopButton = document.getElementById("startStopButton")
 const resetButton = document.getElementById("resetButton")
+const modeButton = document.getElementById("modeButton")
 const timerDisplay = document.getElementById("timerDisplay")
 
+let timerDuration = workDuration
 let animationFrameId = null
 let startTime = null
 let timer = null
@@ -41,14 +44,14 @@ function resetTimer(){
     startTime = null
     timePaused = null
     timePausedElapsed = 0
-    timerDisplay.textContent = formatTime(workDuration)
+    timerDisplay.textContent = formatTime(timerDuration)
     startStopButton.textContent = "Start"
 
 }
 
 function timeCheck(){
     const timeElapsed = Date.now() - startTime - timePausedElapsed
-    if (timeElapsed >= workDuration){
+    if (timeElapsed >= timerDuration){
         resetTimer()
         return
     }
@@ -72,7 +75,7 @@ function startStopButtonHandler(){
 }
 
 function TimerAnimation() {
-    const timeLeft = workDuration - (Date.now() - startTime - timePausedElapsed)
+    const timeLeft = timerDuration - (Date.now() - startTime - timePausedElapsed)
     if (timeLeft <= 0){
         stopTimerAnimation()
         return
@@ -90,7 +93,21 @@ function formatTime(time){
     return Math.floor(time / 60000) + ":" + String(Math.floor((time % 60000) / 1000)).padStart(2, '0')
 }
 
+function modeButtonHandler(){
+    if (timerDuration == workDuration){
+        timerDuration = breakDuration
+        modeButton.textContent = "Work Mode"
+        resetTimer()
+    }
+    else{
+        timerDuration = workDuration
+        modeButton.textContent = "Rest Mode"
+        resetTimer()
+    }
+}
+
 startStopButton.addEventListener("click", startStopButtonHandler)
 resetButton.addEventListener("click", resetTimer)
+modeButton.addEventListener("click", modeButtonHandler)
 
-timerDisplay.textContent = formatTime(workDuration)
+timerDisplay.textContent = formatTime(timerDuration)
