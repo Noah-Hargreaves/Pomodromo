@@ -1,7 +1,9 @@
-const workDuration = 25 * 10 * 1000
+const workDuration = 10 * 1000
 const startStopButton = document.getElementById("startStopButton")
 const resetButton = document.getElementById("resetButton")
+const timerDisplay = document.getElementById("timerDisplay")
 
+let animationFrameId = null
 let startTime = null
 let timer = null
 let timePaused = null
@@ -10,14 +12,17 @@ let timePausedElapsed = 0
 function startTimer(){
     console.log("start timer")
     startTime = Date.now()
+    TimerAnimation()
     timer = setTimeout(timeCheck, 100)
 }
 
 function pauseTimer(){
     console.log("pause Timer")
     clearTimeout(timer)
-    timer = null
     timePaused = Date.now()
+    stopTimerAnimation()
+    timer = null
+
 }
 
 function resumeTimer(){
@@ -25,25 +30,28 @@ function resumeTimer(){
     timePausedElapsed += Date.now() - timePaused
     timePaused = null
     timer = setTimeout(timeCheck, 100)
+    TimerAnimation()
 }
 
 function resetTimer(){
     console.log("reset Timer")
+    stopTimerAnimation()
     clearTimeout(timer)
     timer = null
     startTime = null
     timePaused = null
     timePausedElapsed = 0
+    timerDisplay.textContent = Math.floor(workDuration / 60000) + ":" + String(Math.floor((workDuration % 60000) / 1000)).padStart(2, '0')
+
 }
 
 function timeCheck(){
     const timeElapsed = Date.now() - startTime - timePausedElapsed
     if (timeElapsed >= workDuration){
-        clearTimeout(timer)
         resetTimer()
         return
     }
-    console.log(timeElapsed.toString())
+    console.log("time elapsed: " + timeElapsed.toString())
     timer = setTimeout(timeCheck, 100)
 }
 
@@ -59,7 +67,22 @@ function startStopButtonHandler(){
     }
 }
 
+function TimerAnimation() {
+    const timeLeft = workDuration - (Date.now() - startTime - timePausedElapsed)
+    if (timeLeft <= 0){
+        stopTimerAnimation()
+        return
+    }
+    timerDisplay.textContent = Math.floor(timeLeft / 60000) + ":" + String(Math.floor((timeLeft % 60000) / 1000)).padStart(2, '0')
+    animationFrameId = requestAnimationFrame(TimerAnimation)
+}
+
+function stopTimerAnimation() {
+    cancelAnimationFrame(animationFrameId)
+    animationFrameId = null
+}
+
 startStopButton.addEventListener("click", startStopButtonHandler)
 resetButton.addEventListener("click", resetTimer)
 
-
+timerDisplay.textContent = Math.floor(workDuration / 60000) + ":" + String(Math.floor((workDuration % 60000) / 1000)).padStart(2, '0')
